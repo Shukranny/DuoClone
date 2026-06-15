@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Font Face Declarations
+ * Import Poppins font family in multiple weights
+ */
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/**
+ * Base Styles
+ */
+@layer base {
+  body {
+    @apply font-poppins text-text-primary bg-background;
+  }
+
+  /* Heading styles */
+  h1 {
+    @apply text-h1 font-bold text-text-primary;
+  }
+
+  h2 {
+    @apply text-h2 font-semibold text-text-primary;
+  }
+
+  h3 {
+    @apply text-h3 font-semibold text-text-primary;
+  }
+
+  h4 {
+    @apply text-h4 font-medium text-text-primary;
+  }
+
+  p {
+    @apply text-body-md text-text-primary;
+  }
+}
+
+/**
+ * Component Layer - Utility classes for common patterns
+ */
+@layer components {
+  /* Typography utilities */
+  .text-h1 {
+    @apply text-[32px] font-bold leading-[1.2];
+  }
+
+  .text-h2 {
+    @apply text-[24px] font-semibold leading-[1.3];
+  }
+
+  .text-h3 {
+    @apply text-[20px] font-semibold leading-[1.3];
+  }
+
+  .text-h4 {
+    @apply text-[16px] font-medium leading-[1.4];
+  }
+
+  .text-body-lg {
+    @apply text-[16px] font-regular leading-[1.6];
+  }
+
+  .text-body-md {
+    @apply text-[14px] font-regular leading-[1.6];
+  }
+
+  .text-body-sm {
+    @apply text-[13px] font-regular leading-[1.6];
+  }
+
+  .text-caption {
+    @apply text-[11px] font-regular leading-[1.4];
+  }
+
+  /* Color utilities for semantic colors */
+  .text-success {
+    @apply text-[#21C16B];
+  }
+
+  .text-warning {
+    @apply text-[#FFC800];
+  }
+
+  .text-streak {
+    @apply text-[#FF8A00];
+  }
+
+  .text-error {
+    @apply text-[#FF4D4F];
+  }
+
+  .text-info {
+    @apply text-[#4D8BFF];
+  }
+
+  .bg-success {
+    @apply bg-[#21C16B];
+  }
+
+  .bg-warning {
+    @apply bg-[#FFC800];
+  }
+
+  .bg-streak {
+    @apply bg-[#FF8A00];
+  }
+
+  .bg-error {
+    @apply bg-[#FF4D4F];
+  }
+
+  .bg-info {
+    @apply bg-[#4D8BFF];
+  }
+
+  /* Button base styles */
+  .btn-base {
+    @apply rounded-[12px] px-4 py-3 font-semibold transition-all duration-200 flex items-center justify-center;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-primary text-white;
+  }
+
+  .btn-primary:active {
+    @apply opacity-80;
+  }
+
+  .btn-secondary {
+    @apply btn-base bg-surface text-text-primary border border-border;
+  }
+
+  .btn-secondary:active {
+    @apply bg-border;
+  }
+
+  .btn-success {
+    @apply btn-base bg-success text-white;
+  }
+
+  .btn-danger {
+    @apply btn-base bg-error text-white;
+  }
+
+  /* Card base styles */
+  .card-base {
+    @apply rounded-[16px] bg-surface border border-border;
+  }
+
+  /* Input base styles */
+  .input-base {
+    @apply rounded-[12px] border border-border px-4 py-3 text-body-md font-poppins text-text-primary;
+  }
+
+  .input-base:focus {
+    @apply border-primary outline-none;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-caption font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary text-white;
+  }
+
+  .badge-success {
+    @apply badge bg-success text-white;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning text-white;
+  }
+
+  .badge-error {
+    @apply badge bg-error text-white;
+  }
+}
