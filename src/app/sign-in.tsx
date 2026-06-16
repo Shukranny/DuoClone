@@ -156,7 +156,7 @@ export default function SignInScreen() {
         </Text>
       </KeyboardAvoidingView>
 
-      <VerificationModal visible={showModal} onClose={() => setShowModal(false)} />
+      <VerificationModal visible={showModal} onClose={() => setShowModal(false)} redirectTo="/home" />
     </View>
   );
 }

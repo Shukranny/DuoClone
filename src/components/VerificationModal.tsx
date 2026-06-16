@@ -1,5 +1,5 @@
 import { linguaColors } from "@/theme";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
   Alert,
@@ -18,7 +18,7 @@ type VerificationModalProps = {
   visible: boolean;
   onClose: () => void;
   onVerify?: (code: string) => Promise<boolean> | boolean;
-  redirectTo?: string;
+  redirectTo?: Href;
 };
 
 export function VerificationModal({
@@ -52,16 +52,21 @@ export function VerificationModal({
           success = await Promise.resolve(onVerify(fullCode));
         } else {
           // Mock validation
-          if (fullCode !== "123456") {
+          if (__DEV__) {
+            if (fullCode !== "123456") {
+              success = false;
+              Alert.alert("Invalid Code", "For testing, please use 123456.");
+            }
+          } else {
             success = false;
-            Alert.alert("Invalid Code", "For testing, please use 123456.");
+            Alert.alert("Error", "Validation not available in production.");
           }
         }
 
         if (success) {
           setTimeout(() => {
             onClose(); // Close modal before navigation to prevent state inconsistency
-            router.replace(redirectTo as any);
+            router.replace(redirectTo);
           }, 300);
         } else {
           setCode(Array(CODE_LENGTH).fill(""));

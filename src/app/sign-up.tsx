@@ -127,6 +127,10 @@ export default function SignUpScreen() {
                 Alert.alert("Invalid Input", "Please fill out both email and password.");
                 return;
               }
+              if (password.length < 8) {
+                Alert.alert("Weak Password", "Password must be at least 8 characters long.");
+                return;
+              }
               if (!emailRegex.test(email)) {
                 Alert.alert("Invalid Email", "Please enter a valid email address.");
                 return;
@@ -186,7 +190,7 @@ export default function SignUpScreen() {
         </Text>
       </KeyboardAvoidingView>
 
-      <VerificationModal visible={showModal} onClose={() => setShowModal(false)} />
+      <VerificationModal visible={showModal} onClose={() => setShowModal(false)} redirectTo="/home" />
     </View>
   );
 }
