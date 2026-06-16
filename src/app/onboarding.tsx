@@ -90,7 +90,7 @@ export default function OnboardingScreen() {
       {/* Get Started Button */}
       <View className="px-6 pb-10">
         <TouchableOpacity
-          onPress={() => router.push("/")}
+          onPress={() => router.push("/sign-up")}
           activeOpacity={0.85}
           className="bg-primary rounded-lg py-[18px] flex-row items-center justify-center"
           style={buttonShadow}
