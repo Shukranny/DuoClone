@@ -1,5 +1,6 @@
 import { linguaColors } from "@/theme";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import FontAwesome from "@react-native-vector-icons/fontawesome";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
@@ -36,7 +37,6 @@ export default function SignUpScreen() {
   return (
     <View className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -189,7 +189,6 @@ export default function SignUpScreen() {
           </Text>
         </Text>
       </KeyboardAvoidingView>
-
       <VerificationModal visible={showModal} onClose={() => setShowModal(false)} redirectTo="/home" />
     </View>
   );
