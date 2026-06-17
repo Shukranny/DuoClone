@@ -18,6 +18,7 @@ type VerificationModalProps = {
   visible: boolean;
   onClose: () => void;
   onVerify?: (code: string) => Promise<boolean> | boolean;
+  onResend?: () => void;
   redirectTo?: Href;
 };
 
@@ -25,6 +26,7 @@ export function VerificationModal({
   visible,
   onClose,
   onVerify,
+  onResend,
   redirectTo = "/",
 }: VerificationModalProps) {
   const router = useRouter();
@@ -131,8 +133,12 @@ export function VerificationModal({
                   <Text
                     className="font-bold text-primary"
                     onPress={() => {
-                      // TODO: Call backend API to resend code here
-                      Alert.alert("Code Sent", "A new verification code has been sent to your email.");
+                      if (onResend) {
+                        onResend();
+                      } else {
+                        // TODO: Call backend API to resend code here
+                        Alert.alert("Code Sent", "A new verification code has been sent to your email.");
+                      }
                       setCode(Array(CODE_LENGTH).fill(""));
                     }}
                   >

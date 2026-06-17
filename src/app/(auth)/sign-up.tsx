@@ -1,38 +1,123 @@
 import { linguaColors } from "@/theme";
 import FontAwesome from "@react-native-vector-icons/fontawesome";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useSignUp } from "@clerk/expo";
+import { type Href, useRouter } from "expo-router";
+import { useState } from "react";
 import {
   Dimensions,
   Image,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
-const CODE_LENGTH = 6;
 
 import { buttonShadow, cardShadow, SOCIAL_PROVIDERS } from "@/constants/auth";
 import { VerificationModal } from "@/components/VerificationModal";
+import { useSocialAuth } from "@/hooks/useSocialAuth";
 
 // ─── Sign Up Screen ───────────────────────────────────────────────────────────
 export default function SignUpScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { signUp, errors, fetchStatus } = useSignUp();
+  const { signInWithProvider } = useSocialAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const submitting = fetchStatus === "fetching";
+
+  const handleSignUp = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Invalid Input", "Please fill out both email and password.");
+      return;
+    }
+    if (password.length < 8) {
+      Alert.alert("Weak Password", "Password must be at least 8 characters long.");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    const { error } = await signUp.password({
+      emailAddress: email.trim(),
+      password,
+    });
+
+    if (error) {
+      console.error("Sign-up error:", JSON.stringify(error, null, 2));
+      Alert.alert(
+        "Sign Up Failed",
+        error.longMessage || error.message || "Something went wrong. Please try again."
+      );
+      return;
+    }
+
+    try {
+      await signUp.verifications.sendEmailCode();
+      setShowModal(true);
+    } catch (error: any) {
+      console.error("Send email verification code error:", error);
+      Alert.alert(
+        "Verification Code Error",
+        error?.longMessage || error?.message || "Failed to send verification email code. Please try again."
+      );
+    }
+  };
+
+  // Called by VerificationModal once all 6 digits are entered.
+  const handleVerifyCode = async (code: string) => {
+    try {
+      await signUp.verifications.verifyEmailCode({ code });
+
+      if (signUp.status === "complete") {
+        await signUp.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            if (session?.currentTask) {
+              console.log("Pending session task:", session.currentTask);
+              return;
+            }
+            router.replace(decorateUrl("/") as Href);
+          },
+        });
+        return true;
+      }
+
+      console.error("Sign-up attempt not complete:", signUp);
+      Alert.alert("Verification Failed", "That code didn't work. Please try again.");
+      return false;
+    } catch (error: any) {
+      console.error("Verification code verification error:", error);
+      Alert.alert(
+        "Verification Failed",
+        error?.longMessage || error?.message || "Verification code failed or there was a network error. Please try again."
+      );
+      return false;
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      await signUp.verifications.sendEmailCode();
+      Alert.alert("Code Sent", "A new verification code has been sent to your email.");
+    } catch (err) {
+      console.error("Resend error:", JSON.stringify(err, null, 2));
+      Alert.alert("Error", "Couldn't resend the code. Please try again.");
+    }
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -91,6 +176,12 @@ export default function SignUpScreen() {
             />
           </View>
 
+          {errors?.fields?.emailAddress && (
+            <Text className="text-[12px] text-error -mt-1">
+              {errors.fields.emailAddress.message}
+            </Text>
+          )}
+
           {/* Password */}
           <View
             className="bg-white rounded-2xl border border-border px-4 py-3.5 flex-row items-center"
@@ -118,31 +209,27 @@ export default function SignUpScreen() {
               />
             </TouchableOpacity>
           </View>
+          {errors?.fields?.password && (
+            <Text className="text-[12px] text-error -mt-1">
+              {errors.fields.password.message}
+            </Text>
+          )}
 
           {/* Sign Up Button */}
           <TouchableOpacity
-            onPress={() => {
-              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-              if (!email.trim() || !password.trim()) {
-                Alert.alert("Invalid Input", "Please fill out both email and password.");
-                return;
-              }
-              if (password.length < 8) {
-                Alert.alert("Weak Password", "Password must be at least 8 characters long.");
-                return;
-              }
-              if (!emailRegex.test(email)) {
-                Alert.alert("Invalid Email", "Please enter a valid email address.");
-                return;
-              }
-              setShowModal(true);
-            }}
+            onPress={handleSignUp}
+            disabled={submitting}
             activeOpacity={0.85}
             className="bg-primary rounded-2xl py-4 items-center mt-1"
-            style={buttonShadow}
+            style={[buttonShadow, submitting && { opacity: 0.6 }]}
           >
-            <Text className="text-white text-base font-bold">Sign Up</Text>
+            <Text className="text-white text-base font-bold">
+              {submitting ? "Creating account..." : "Sign Up"}
+            </Text>
           </TouchableOpacity>
+
+          {/* Required for sign-up flows. Clerk's bot sign-up protection is enabled by default */}
+          <View nativeID="clerk-captcha" />
         </View>
 
         {/* OR divider */}
@@ -160,10 +247,7 @@ export default function SignUpScreen() {
             <TouchableOpacity
               key={provider.id}
               activeOpacity={0.8}
-              onPress={() => {
-                // TODO: Initiate appropriate auth flow based on provider.id
-                Alert.alert("Social Sign Up", `Initiating ${provider.label}...`);
-              }}
+              onPress={() => signInWithProvider(provider.id)}
               className="flex-row items-center bg-white border border-border rounded-2xl px-5 py-3.5"
               style={cardShadow}
             >
@@ -189,7 +273,13 @@ export default function SignUpScreen() {
           </Text>
         </Text>
       </KeyboardAvoidingView>
-      <VerificationModal visible={showModal} onClose={() => setShowModal(false)} redirectTo="/home" />
+      <VerificationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        onVerify={handleVerifyCode}
+        onResend={handleResendCode}
+        redirectTo="/"
+      />
     </View>
   );
 }
