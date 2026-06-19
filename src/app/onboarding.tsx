@@ -1,6 +1,8 @@
 import { linguaColors } from "@/theme";
 import { useRouter } from "expo-router";
 import { Dimensions, Image, StatusBar, Text, TouchableOpacity, View } from "react-native";
+// 1. Import useSafeAreaInsets for cross-platform layout consistency
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -22,13 +24,17 @@ const buttonShadow = {
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets(); // 2. Hook into native device margins
 
   return (
     <View className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header — pt-[52px] to clear the status bar */}
-      <View className="flex-row items-center justify-center gap-3 px-6 pt-[52px] pb-2">
+      {/* Header — pt-[52px] removed; dynamically padding top based on the device's status bar */}
+      <View 
+        className="flex-row items-center justify-center gap-3 px-6 pb-2"
+        style={{ paddingTop: Math.max(insets.top, 16) }} // Ensures minimal 16px structural space
+      >
         <Image
           source={require("@/assets/images/moscot-logo.png")}
           className="w-9 h-9"
@@ -87,8 +93,11 @@ export default function OnboardingScreen() {
         </View>
       </View>
 
-      {/* Get Started Button */}
-      <View className="px-6 pb-10">
+      {/* Get Started Button — Bottom padding handles navigation home pill bars */}
+      <View 
+        className="px-6"
+        style={{ paddingBottom: Math.max(insets.bottom, 24) }} 
+      >
         <TouchableOpacity
           onPress={() => router.push("/sign-up")}
           activeOpacity={0.85}

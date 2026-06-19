@@ -1,8 +1,10 @@
-import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@/utils/cache";
+import { ClerkProvider, useAuth } from "@clerk/expo";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
+// 1. Import SafeAreaProvider to supply safe area metrics to both platforms
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../../globals.css";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -52,14 +54,18 @@ function AuthGate() {
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="sso-callback" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="languages" options={{ headerShown: false }} />
     </Stack>
   );
 }
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <AuthGate />
-    </ClerkProvider>
+    // 2. Wrap your entire application inside the provider structure
+    <SafeAreaProvider>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <AuthGate />
+      </ClerkProvider>
+    </SafeAreaProvider>
   );
 }
